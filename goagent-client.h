@@ -19,6 +19,14 @@ typedef struct {
     int gae_crlf;
     int gae_validate;
 
+    const char* profile_mode;
+    int profile_window;
+    const char* profile_hosts;
+    const char* profile_sites;
+    const char* profile_forcehttps;
+    const char* profile_withgae;
+    const char* profile_withdns;
+
     int pac_enable;
     const char* pac_ip;
     int pac_port;

@@ -21,21 +21,6 @@
 #include "goagent-client.h"
 #include "ini.h"
 
-int ini_file_handler (void* pconfig, const char* section, 
-                      const char* key, const char* value)
-{
-    proxy_configuration* config = (proxy_configuration*)pconfig;    
-    if (strcmp(section,"listen") == 0) {
-        if (strcmp(key,"ip") == 0) {
-            config->listen_ip = strdup(value);        
-        } else if (strcmp(key,"port") == 0) {
-            config->listen_port = atoi(value);
-        }
-        return 1;
-    }
-    return 1;
-}
-
 int main(int argc, char **argv)
 {
     proxy_configuration config;
@@ -43,6 +28,6 @@ int main(int argc, char **argv)
         printf("Can't load 'proxy.ini'\r\n");
         return 1;
     }
-    printf("test\r\nlisten:%s:%d\r\n",config.listen_ip,config.listen_port);
+    printf("test\r\nlisten:%s:%d\r\ngae id:%s hosts:%s\r\n",config.listen_ip,config.listen_port,config.gae_appid,config.profile_hosts);
     return 0;
 }
