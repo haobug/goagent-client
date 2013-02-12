@@ -6,6 +6,19 @@
 #ifndef __GOAGENT_CLIENT_H
 #define __GOAGENT_CLIENT_H
 
+
+typedef struct profile_struct {
+    const char *name;
+    const char* mode;
+    int window;
+    const char* hosts;
+    const char* sites;
+    const char* forcehttps;
+    const char* withgae;
+    const char* withdns;
+    struct profile_struct* next;
+} profile;
+
 typedef struct {
     const char* listen_ip;
     int listen_port;
@@ -18,14 +31,6 @@ typedef struct {
     const char* gae_profile;
     int gae_crlf;
     int gae_validate;
-
-    const char* profile_mode;
-    int profile_window;
-    const char* profile_hosts;
-    const char* profile_sites;
-    const char* profile_forcehttps;
-    const char* profile_withgae;
-    const char* profile_withdns;
 
     int pac_enable;
     const char* pac_ip;
@@ -68,10 +73,16 @@ typedef struct {
 
     int useragent_enable;
     const char* useragent_string;
+
+    profile* profiles;
+    profile* current_profile;
 } configuration;
+
 
 extern int ini_file_handler (void* pconfig, const char* section, 
         const char* key, const char* value);
 extern int getoption(int argc, char **argv, configuration* config);
+extern profile* find_profile(const char* name, configuration* config,int create);
+extern int switch_profile(configuration *config, const char* name);
 
 #endif /* __GOAGENT_CLIENT_H */
