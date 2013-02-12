@@ -68,9 +68,10 @@ typedef struct {
 
     int useragent_enable;
     const char* useragent_string;
-} proxy_configuration;
+} configuration;
 
 extern int ini_file_handler (void* pconfig, const char* section, 
-                             const char* key, const char* value);
+        const char* key, const char* value);
+extern int getoption(int argc, char **argv, configuration* config);
 
 #endif /* __GOAGENT_CLIENT_H */

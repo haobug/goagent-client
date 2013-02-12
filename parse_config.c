@@ -2,14 +2,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <getopt.h>
 #include "goagent-client.h"
+#include "ini.h"
+
+static struct option longopts[] = {
+    {"inifile", required_argument, NULL, 'f'},
+    {"host", required_argument, NULL, 'H'},
+    {"port", required_argument, NULL, 'p'},
+    {"help", no_argument, NULL, 'h'},
+    {"version", no_argument, NULL, 'V'},
+    { NULL, 0, NULL, 0 }
+};
 
 int ini_file_handler (void* pconfig, const char* section,
-                      const char* key, const char* value)
+        const char* key, const char* value)
 {
-    #define MATCH_SECTION(s) strcmp(section, s) == 0
-    #define MATCH_KEY(s) strcmp(key,s) == 0
-    proxy_configuration* config = (proxy_configuration*)pconfig;
+#define MATCH_SECTION(s) strcmp(section, s) == 0
+#define MATCH_KEY(s) strcmp(key,s) == 0
+    configuration* config = (configuration*)pconfig;
     int handled = 1;
     if (MATCH_SECTION("listen")) {
         if (MATCH_KEY("ip")) {
@@ -62,4 +73,56 @@ int ini_file_handler (void* pconfig, const char* section,
         fprintf(stderr,"Unrecognized section:%s key:%s\r\n", section, key);
     }
     return 1;
+}
+
+static void usage() {
+   printf("=================GoAgent native client================\r\n");
+   printf("Version 0.1.0\r\n\r\n");
+   printf("-f FILE, --file=FILE      Read configuration from FILE\r\n");
+   printf("-H, --host                Change listening ip\r\n");
+   printf("-P, --port                Change listening port\r\n");
+   printf("-h, --help                Print this message and exit\r\n");
+}
+
+int getoption(int argc, char **argv, configuration *config) {
+    int ch;
+    int loaded_config = 0;
+    while ((ch = getopt_long(argc, argv, "f:h:p:", longopts, NULL)) != -1) {
+        if (!loaded_config) {
+            char *file;
+            if (ch == 'f') {
+                file = optarg;
+            } else {
+                file = "./proxy.ini";
+            }
+            if (ini_parse(file, ini_file_handler, config) < 0) {
+                fprintf(stderr, "Can't load %s\r\n",file);
+                return 1;
+            } else {
+                loaded_config = 1;
+            }
+        }
+        switch (ch) {
+            case 'f':
+                break;
+            case 'H':
+                config->listen_ip = optarg;
+                break;
+            case 'p':
+                config->listen_port = atoi(optarg);
+                break;
+            case 'V':
+            case 'h':
+            default:
+                usage();
+                return 1;
+        }
+    }
+    if (!loaded_config) {
+        if (ini_parse("proxy.ini", ini_file_handler, config) < 0) {
+            fprintf(stderr, "Can't load proxy.ini\r\n");
+            return 1;
+        }
+    }
+    return 0;
 }
