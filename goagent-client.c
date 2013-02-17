@@ -21,6 +21,8 @@
 
 int main(int argc, char **argv)
 {
+    printf("=================GoAgent native client================\r\n");
+    printf("Version 0.1.0\r\n\r\n");
     configuration config;
     memset(&config,0,sizeof(configuration));
     if (getoption(argc,argv,&config)) {

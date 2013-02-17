@@ -92,6 +92,14 @@ int ini_file_handler (void* pconfig, const char* section,
         } else {
             handled = 0;
         }
+    } else if (MATCH_SECTION("crlf")) {
+        if (MATCH_KEY("enable")) {
+            config->crlf_enable = atoi(value);
+        } else if (MATCH_KEY("dns")) {
+            config->crlf_dns = strdup(value);
+        } else if (MATCH_KEY("sites")) {
+            config->crlf_sites = strdup(value);
+        }
     }
     if (!handled) {
         fprintf(stderr,"Unrecognized section:%s key:%s\r\n", section, key);
@@ -110,8 +118,6 @@ int switch_profile(configuration *config, const char* name)
 }
 
 static void usage() {
-    printf("=================GoAgent native client================\r\n");
-    printf("Version 0.1.0\r\n\r\n");
     printf("-f FILE, --file=FILE      Read configuration from FILE\r\n");
     printf("-H, --host                Change listening ip\r\n");
     printf("-P, --port                Change listening port\r\n");
@@ -160,6 +166,10 @@ int getoption(int argc, char **argv, configuration *config) {
     }
     if (switch_profile(config, config->gae_profile)) {
         fprintf(stderr, "Can't find gae profile:%s\r\n",config->gae_profile);
+        return 1;
+    }
+    if (!strcmp(config->gae_appid,"goagent") && !config->crlf_enable) {
+        fprintf(stderr, "Please edit proxy.ini to add your appid to [gae]!\r\n");
         return 1;
     }
     return 0;
