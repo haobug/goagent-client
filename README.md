@@ -32,7 +32,11 @@ cp ios_makefile makefile
 make
 ```
 
-
+For Android:
+```
+cd android
+ndk-build
+```
 
 2. Linux
 
