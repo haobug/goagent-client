@@ -19,7 +19,7 @@ typedef struct profile_struct {
     struct profile_struct* next;
 } profile;
 
-typedef struct {
+typedef struct configuration_struct{
     const char* listen_ip;
     int listen_port;
     int listen_visible;

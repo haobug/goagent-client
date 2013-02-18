@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <getopt.h>
+#include "my_getopt.h"
 #include "goagent-client.h"
 #include "ini.h"
 
@@ -17,6 +17,7 @@ static struct option longopts[] = {
 
 profile* find_profile(const char* name, configuration* config, int create)
 {
+	profile* head;
     profile* p = config->profiles;
     while (p && strcmp(name,p->name)) {
         p = p->next;
@@ -25,7 +26,7 @@ profile* find_profile(const char* name, configuration* config, int create)
         p = malloc(sizeof(profile));
         memset(p,0,sizeof(profile));
         p->name = strdup(name);
-        profile* head = config->profiles;
+        head = config->profiles;
         if (!head) {
             config->profiles=p;
         } else {
