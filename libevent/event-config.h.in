@@ -1,0 +1,50 @@
+#cmakedefine _EVENT_HAVE_UINT64_T 1
+#cmakedefine _EVENT_HAVE_UINT32_T 1
+#cmakedefine _EVENT_HAVE_UINT16_T 1 
+#cmakedefine _EVENT_HAVE_UINT8_T 1
+#cmakedefine _EVENT_SIZEOF_SIZE_T @_EVENT_SIZEOF_SIZE_T@
+#cmakedefine _EVENT_HAVE_UINTPTR_T 1
+
+
+
+#define _EVENT_HAVE_STRUCT_SOCKADDR_IN6 1
+#define _EVENT_HAVE_STRUCT_SOCKADDR_STORAGE 1
+#define _EVENT_HAVE_STRUCT_IN6_ADDR
+#define _EVENT_HAVE_SA_FAMILY_T 1
+
+#define _EVENT_HAVE_STRTOLL
+#define _EVENT_HAVE_GETTIMEOFDAY
+#define _EVENT_HAVE_ARC4RANDOM
+#define _EVENT_HAVE_ARC4RANDOM_BUF
+
+#cmakedefine _EVENT_HAVE_FCNTL_H
+#cmakedefine _EVENT_HAVE_STDARG_H
+#cmakedefine _EVENT_HAVE_INTTYPES_H
+#cmakedefine _EVENT_HAVE_STDINT_H
+#cmakedefine _EVENT_HAVE_STDDEF_H
+#cmakedefine _EVENT_HAVE_POLL_H
+#cmakedefine _EVENT_HAVE_UNISTD_H
+#cmakedefine _EVENT_HAVE_SYS_EPOLL_H
+#cmakedefine _EVENT_HAVE_SYS_TIME_H
+#cmakedefine _EVENT_HAVE_SYS_QUEUE_H
+#cmakedefine _EVENT_HAVE_SYS_EVENT_H
+#cmakedefine _EVENT_HAVE_SYS_PARAM_H
+#cmakedefine _EVENT_HAVE_SYS_IOCTL_H
+#cmakedefine _EVENT_HAVE_SYS_SELECT_H
+#cmakedefine _EVENT_HAVE_SYS_DEVPOLL_H
+#cmakedefine _EVENT_HAVE_PORT_H
+#cmakedefine _EVENT_HAVE_NETINET_IN_H
+#cmakedefine _EVENT_HAVE_NETINET_IN6_H
+#cmakedefine _EVENT_HAVE_SYS_SOCKET_H
+#cmakedefine _EVENT_HAVE_SYS_UIO_H
+#cmakedefine _EVENT_HAVE_ARPA_INET_H
+#cmakedefine _EVENT_HAVE_SYS_EVENTFD_H
+#cmakedefine _EVENT_HAVE_SYS_MMAN_H
+#cmakedefine _EVENT_HAVE_SYS_SENDFILE_H
+#cmakedefine _EVENT_HAVE_SYS_WAIT_H
+#cmakedefine _EVENT_HAVE_NETDB_H
+#cmakedefine _EVENT_HAVE_SYS_STAT_H
+#cmakedefine _EVENT_HAVE_SYS_SYSCTL_H
+
+#define _EVENT_NUMERIC_VERSION 0x02010101
+#define _EVENT_VERSION "2.1.1"
