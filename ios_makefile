@@ -1,4 +1,4 @@
-include theos/makefiles/common.mk
+include $(THEOS)/makefiles/common.mk
 
 TOOL_NAME = GoAgent
 GoAgent_FILES = src/ini.c src/parse_config.c src/goagent-client.c
