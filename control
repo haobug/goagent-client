@@ -1,4 +1,4 @@
-Package: com.evanjiang.goagent
+Package: com.googlecode.goagent-client
 Name: GoAgent
 Depends: 
 Version: 0.0.1
