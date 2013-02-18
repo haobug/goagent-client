@@ -3,7 +3,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <fcntl.h>
-//#include <unistd.h>
+#include <unistd.h>
 #include <string.h>
 #include <time.h>
 #include <sys/types.h>
@@ -32,6 +32,7 @@ int main(int argc, char **argv)
     struct event *signal_event;
 
     struct sockaddr_in sin;
+    pid_t  pid, sid;
 #ifdef WIN32
     WSADATA wsa_data;
     WSAStartup(0x0201, &wsa_data);
@@ -47,6 +48,24 @@ int main(int argc, char **argv)
     }
     printf("test\r\nlisten:%s:%d\r\ngae id:%s hosts:%s\r\n",config.listen_ip,config.listen_port,config.gae_appid,config.current_profile->hosts);
 
+    if (config.run_daemon) {
+        pid = fork();
+        if (pid < 0) {
+            exit(EXIT_FAILURE);
+        } else if (pid > 0) {
+            exit(EXIT_SUCCESS);
+        }
+        if ((sid = setsid()) < 0) {
+            exit(EXIT_FAILURE);
+        }
+        if((chdir("/")) < 0){
+            exit(EXIT_FAILURE);
+        }
+        umask(0);
+        close(STDIN_FILENO);
+        close(STDOUT_FILENO);
+        close(STDERR_FILENO);
+    }
 
     base = event_base_new();  
     return 0;

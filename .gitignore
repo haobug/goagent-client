@@ -15,3 +15,7 @@
 *.exe
 *.out
 *.app
+
+android/libs
+android/obj
+build/

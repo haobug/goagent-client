@@ -20,6 +20,8 @@ typedef struct profile_struct {
 } profile;
 
 typedef struct configuration_struct{
+    int run_daemon;
+
     const char* listen_ip;
     int listen_port;
     int listen_visible;

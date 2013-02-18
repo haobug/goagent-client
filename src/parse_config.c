@@ -10,6 +10,7 @@ static struct option longopts[] = {
     {"inifile", required_argument, NULL, 'f'},
     {"host", required_argument, NULL, 'H'},
     {"port", required_argument, NULL, 'p'},
+    {"daemon",no_argument, NULL, 'd'},
     {"help", no_argument, NULL, 'h'},
     {"version", no_argument, NULL, 'V'},
     { NULL, 0, NULL, 0 }
@@ -122,6 +123,7 @@ static void usage() {
     printf("-f FILE, --file=FILE      Read configuration from FILE\r\n");
     printf("-H, --host                Change listening ip\r\n");
     printf("-P, --port                Change listening port\r\n");
+    printf("-d, --daemon              Run as daemon\r\n");
     printf("-h, --help                Print this message and exit\r\n");
 }
 
@@ -151,6 +153,9 @@ int getoption(int argc, char **argv, configuration *config) {
                 break;
             case 'p':
                 config->listen_port = atoi(optarg);
+                break;
+            case 'd':
+                config->run_daemon = 1;
                 break;
             case 'V':
             case 'h':
