@@ -3651,7 +3651,10 @@ evhtp_make_request(evhtp_connection_t * c, evhtp_request_t * r,
                    htp_method meth, const char * uri) {
     evbuf_t * obuf;
     char    * proto;
+    const char* method_str;
 
+    if(!c->bev) return -1;
+    
     obuf       = bufferevent_get_output(c->bev);
     r->conn    = c;
     c->request = r;
@@ -3665,9 +3668,11 @@ evhtp_make_request(evhtp_connection_t * c, evhtp_request_t * r,
             proto = "1.1";
             break;
     }
-
+    method_str=htparser_get_methodstr_m(meth);
+    if(!method_str)
+        return -1;
     evbuffer_add_printf(obuf, "%s %s HTTP/%s\r\n",
-                        htparser_get_methodstr_m(meth), uri, proto);
+                        method_str, uri, proto);
 
     evhtp_headers_for_each(r->headers_out, _evhtp_create_headers, obuf);
     evbuffer_add_reference(obuf, "\r\n", 2, NULL, NULL);
