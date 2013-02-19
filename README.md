@@ -6,8 +6,16 @@ A new implementation of GoAgent client with pure C language
 To Build:
 
 1. Mac OS X
-
 For Mac OS X:
+```
+mkdir build
+cd build
+cmake -GXcode ..
+xcodebuild -configuration Debug
+```
+
+Or,
+
 ```
 mkdir build
 cd build
