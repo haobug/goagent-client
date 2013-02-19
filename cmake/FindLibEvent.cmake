@@ -1,37 +1,23 @@
-# - Find LibEvent (a cross event library)
-# This module defines
-# LIBEVENT_INCLUDE_DIR, where to find LibEvent headers
-# LIBEVENT_LIB, LibEvent libraries
-# LibEvent_FOUND, If false, do not try to use libevent
+# - Try to find the LibEvent config processing library
+# Once done this will define
+#
+# LIBEVENT_FOUND - System has LibEvent
+# LIBEVENT_INCLUDE_DIR - the LibEvent include directory
+# LIBEVENT_LIBRARIES 0 The libraries needed to use LibEvent
 
-set(LibEvent_EXTRA_PREFIXES /usr/local /opt/local "$ENV{HOME}")
-foreach(prefix ${LibEvent_EXTRA_PREFIXES})
-	       list(APPEND LibEvent_INCLUDE_PATHS "${prefix}/include")
-	       list(APPEND LibEvent_LIB_PATHS "${prefix}/lib")
-endforeach()
+FIND_PATH(LIBEVENT_INCLUDE_DIR NAMES event.h)
+FIND_LIBRARY(LIBEVENT_LIBRARY NAMES event)
+FIND_LIBRARY(LIBEVENT_CORE_LIBRARY NAMES event_core)
+FIND_LIBRARY(LIBEVENT_PTHREADS_LIBRARY NAMES event_pthreads)
+FIND_LIBRARY(LIBEVENT_EXTRA_LIBRARY NAMES event_extra)
+FIND_LIBRARY(LIBEVENT_OPENSSL_LIBRARY NAMES event_openssl)
 
-find_path(LIBEVENT_INCLUDE_DIR event.h PATHS ${LibEvent_INCLUDE_PATHS})
-find_library(LIBEVENT_LIB NAMES event_core PATHS ${LibEvent_LIB_PATHS})
 
-if (LIBEVENT_LIB AND LIBEVENT_INCLUDE_DIR)
-  set(LibEvent_FOUND TRUE)
-  set(LIBEVENT_LIB ${LIBEVENT_LIB})
-else ()
-  set(LibEvent_FOUND FALSE)
-endif ()
+INCLUDE(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(LibEvent DEFAULT_MSG LIBEVENT_LIBRARY LIBEVENT_INCLUDE_DIR)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(LibEventPthreads DEFAULT_MSG LIBEVENT_PTHREADS_LIBRARY LIBEVENT_INCLUDE_DIR)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(LibEventCore DEFAULT_MSG LIBEVENT_CORE_LIBRARY LIBEVENT_INCLUDE_DIR)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(LibEventExtra DEFAULT_MSG LIBEVENT_EXTRA_LIBRARY LIBEVENT_INCLUDE_DIR)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(LibEventOpenssl DEFAULT_MSG LIBEVENT_OPENSSL_LIBRARY LIBEVENT_INCLUDE_DIR)
 
-if (LibEvent_FOUND)
-  if (NOT LibEvent_FIND_QUIETLY)
-    message(STATUS "Found libevent: ${LIBEVENT_LIB}")
-  endif ()
-else ()
-    if (LibEvent_FIND_REQUIRED)
-        message(FATAL_ERROR "Could NOT find libevent.")
-    endif ()
-    message(STATUS "libevent NOT found.")
-endif ()
-
-mark_as_advanced(
-    LIBEVENT_LIB
-    LIBEVENT_INCLUDE_DIR
-  )
+MARK_AS_ADVANCED(LIBEVENT_INCLUDE_DIR LIBEVENT_LIBRARY LIBEVENT_PTHREADS_LIBRARY LIBEVENT_OPENSSL_LIBRARY LIBEVENT_CORE_LIBRARY LIBEVENT_EXTRA_LIBRARY)
