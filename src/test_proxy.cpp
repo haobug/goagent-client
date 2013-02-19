@@ -5,6 +5,8 @@
 #include <string.h>
 #include <stdint.h>
 #include <errno.h>
+#include <signal.h>
+
 #include "evhtp.h"
 
 
@@ -21,6 +23,10 @@ make_request(evbase_t         * evbase,
     evhtp_request_t    * request;
 
     conn         = evhtp_connection_new(evbase, host, port);
+    if(!conn->bev){
+        printf("connect to dest host fail");
+        return -1;
+    }
     conn->thread = evthr;
     request      = evhtp_request_new(cb, arg);
 
@@ -72,7 +78,7 @@ frontend_cb(evhtp_request_t * req, void * arg) {
 
     make_request(evthr_get_base(req->conn->thread),
                  req->conn->thread,
-                 "127.0.0.1", 80,
+                 "www.baidu.com", 80,
                  req->uri->path->full,
                  req->headers_in, backend_cb, req);
 
@@ -83,7 +89,9 @@ frontend_cb(evhtp_request_t * req, void * arg) {
 void
 sigterm_cb(int fd, short event, void * arg) {
     evbase_t     * evbase = (evbase_t *)arg;
-    struct timeval tv     = { .tv_usec = 100000, .tv_sec = 0 }; /* 100 ms */
+    struct timeval tv ;
+    tv.tv_usec = 100000;
+    tv.tv_sec = 0 ; /* 100 ms */
 
     event_base_loopexit(evbase, &tv);
 }
@@ -119,7 +127,10 @@ main(int argc, char ** argv) {
     ev_sigterm = evsignal_new(evbase, SIGTERM, sigterm_cb, evbase);
     evsignal_add(ev_sigterm, NULL);
 
-    evhtp_bind_socket(evhtp, "0.0.0.0", 8081, 1024);
+    if(evhtp_bind_socket(evhtp, "0.0.0.0", 8081, 1024)){
+        printf("bind fail\n");
+        return -1;
+    }
     event_base_loop(evbase, 0);
 
     printf("Clean exit\n");
