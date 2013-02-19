@@ -19,3 +19,5 @@
 android/libs
 android/obj
 build/
+
+*~
