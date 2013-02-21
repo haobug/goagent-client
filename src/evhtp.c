@@ -3619,7 +3619,11 @@ evhtp_connection_new(evbase_t * evbase, const char * addr, uint16_t port) {
 
     conn->evbase        = evbase;
     conn->bev           = bufferevent_socket_new(evbase, -1, BEV_OPT_CLOSE_ON_FREE);
-
+    
+    if(!conn->bev){
+        return NULL;
+    }
+    
     bufferevent_enable(conn->bev, EV_READ);
 
     bufferevent_setcb(conn->bev, NULL, NULL,
