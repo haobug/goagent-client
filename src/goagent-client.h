@@ -6,6 +6,11 @@
 #ifndef __GOAGENT_CLIENT_H
 #define __GOAGENT_CLIENT_H
 
+#include "http_parser.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct profile_struct {
     const char *name;
@@ -81,10 +86,24 @@ typedef struct configuration_struct{
 } configuration;
 
 
-extern int ini_file_handler (void* pconfig, const char* section, 
+
+typedef struct client_handler{
+    http_parser req_parser;
+    http_parser res_parser;
+    http_parser_settings parse_req_settings;
+    http_parser_settings parse_res_settings;
+} client_handler;
+
+
+extern client_handler* create_client_header();
+extern void destory_client_handler(client_handler* p);
+extern int ini_file_handler (void* pconfig, const char* section,
         const char* key, const char* value);
 extern int getoption(int argc, char **argv, configuration* config);
 extern profile* find_profile(const char* name, configuration* config,int create);
 extern int switch_profile(configuration *config, const char* name);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __GOAGENT_CLIENT_H */

@@ -25,13 +25,21 @@
 
 #include "goagent-client.h"
 
-
 static void read_cb(struct bufferevent *bev, void *ctx){
     struct evbuffer *input;
     char *request_line;
     size_t len;
+    client_handler* clienthandler;
+    char buf[1024];
+    int n;
+    
+    clienthandler=(client_handler*)ctx;
     
     input = bufferevent_get_input(bev);
+    while ((n = evbuffer_remove(input, buf, sizeof(buf))) > 0) {
+        http_parser_execute(&clienthandler->req_parser, &clienthandler->parse_req_settings, buf, n);
+    }
+    
     request_line = evbuffer_readln(input, &len, EVBUFFER_EOL_CRLF);
     if (!request_line) {
         /* The first line has not arrived yet. */
@@ -52,6 +60,58 @@ event_cb(struct bufferevent *bev, short events, void *ctx)
     }
 }
 
+int req_on_message_begin (http_parser* parser) {
+    printf("enter %s\n",__func__);
+    return 0;
+}
+int req_on_url (http_parser* parser, const char *at, size_t length) {
+    printf("enter %s\n",__func__);
+    return 0;
+}
+int req_on_header_field (http_parser* parser, const char *at, size_t length) {
+    printf("enter %s\n",__func__);
+    return 0;
+}
+int req_on_header_value (http_parser* parser, const char *at, size_t length) {
+    printf("enter %s\n",__func__);
+    return 0;
+}
+int req_on_headers_complete (http_parser* parser)      {
+    printf("enter %s\n",__func__);
+    return 0;
+}
+int req_on_body (http_parser* parser, const char *at, size_t length) {
+    printf("enter %s\n",__func__);
+    return 0;
+}
+int req_on_message_complete (http_parser* parser)      {
+    printf("enter %s\n",__func__);
+    return 0;
+}
+
+void destory_client_handler(client_handler* p){
+    //do nothing now
+}
+
+client_handler* create_client_header(){
+    client_handler* ret;
+    ret=(client_handler*)malloc(sizeof(client_handler));
+    http_parser_init(&ret->req_parser, HTTP_REQUEST);
+    http_parser_init(&ret->res_parser, HTTP_RESPONSE);
+    memset(&ret->parse_req_settings,0,sizeof(http_parser_settings));
+    memset(&ret->parse_res_settings,0,sizeof(http_parser_settings));
+    ret->parse_req_settings.on_message_begin=&req_on_message_begin;
+    ret->parse_req_settings.on_url=&req_on_url;
+    ret->parse_req_settings.on_header_field=&req_on_header_field;
+    ret->parse_req_settings.on_header_value=&req_on_header_value;
+    ret->parse_req_settings.on_headers_complete=&req_on_headers_complete;
+    ret->parse_req_settings.on_body=&req_on_body;
+    ret->parse_req_settings.on_message_complete=&req_on_message_complete;
+    
+    
+    return ret;
+}
+
 static void my_acceptcb(struct evconnlistener *listener,
                  evutil_socket_t sock, struct sockaddr *addr, int addrlen, void *ptr){
     struct event_base *base;
@@ -66,8 +126,8 @@ static void my_acceptcb(struct evconnlistener *listener,
     fprintf(stderr,"got connection from %s\n",host);
     base = evconnlistener_get_base(listener);
     struct bufferevent *bev = bufferevent_socket_new(base, sock, BEV_OPT_CLOSE_ON_FREE);
-    
-    bufferevent_setcb(bev, read_cb, NULL, event_cb, NULL);
+    client_handler* clienthandler=create_client_header();
+    bufferevent_setcb(bev, read_cb, NULL, event_cb, clienthandler);
     
     bufferevent_enable(bev, EV_READ|EV_WRITE);
 }

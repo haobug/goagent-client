@@ -4,9 +4,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${LIBEVENT_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR})
 
 add_definitions(-DEVHTP_DISABLE_REGEX -D_CRT_SECURE_NO_WARNINGS -DHAVE_CONFIG_H)
-add_executable(goagent-client goagent-client.c ini.c parse_config.c goagent-client.h ini.h htparse.h htparse.c evhtp.h evhtp.c evthr.c evthr.h)
+add_executable(goagent-client goagent-client.c ini.c parse_config.c goagent-client.h ini.h http_parser.h http_parser.cpp)
 TARGET_LINK_LIBRARIES(goagent-client  ${LIBEVENT_CORE_LIBRARY} ${LIBEVENT_OPENSSL_LIBRARY} ${OPENSSL_LIBRARIES})
 
 
-add_executable(test_proxy test_proxy.cpp htparse.h htparse.c evhtp.h evhtp.c evthr.c evthr.h)
-TARGET_LINK_LIBRARIES(test_proxy  ${LIBEVENT_CORE_LIBRARY} ${LIBEVENT_OPENSSL_LIBRARY} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
