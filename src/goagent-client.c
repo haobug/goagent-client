@@ -36,18 +36,26 @@ static void read_cb(struct bufferevent *bev, void *ctx){
     clienthandler=(client_handler*)ctx;
     
     input = bufferevent_get_input(bev);
+    
+    //TODO:无论是http request还是http response，必须要第一行收完之后，才能提交给http_parser_execute。
+    //第一行是指"HTTP/1.1 200 OK" 和"GET / HTTP/1.1" 这样的。
+    
+    /* request_line = evbuffer_readln(input, &len, EVBUFFER_EOL_CRLF);
+     if (!request_line) {
+     // The first line has not arrived yet.
+     return;
+     } else {
+     fprintf(stderr,"received line %s\n",request_line);
+     free(request_line);
+     } */
+    
+    
+    //TODO:把http parser的各个callback的实现补全，使得在message_complete的时候能得到一个完整的http_request_message
     while ((n = evbuffer_remove(input, buf, sizeof(buf))) > 0) {
         http_parser_execute(&clienthandler->req_parser, &clienthandler->parse_req_settings, buf, n);
     }
     
-    request_line = evbuffer_readln(input, &len, EVBUFFER_EOL_CRLF);
-    if (!request_line) {
-        /* The first line has not arrived yet. */
-        return;
-    } else {
-        fprintf(stderr,"received line %s\n",request_line);
-        free(request_line);
-    }
+    //TODO:如果已经收到一个完整的message，就可以向gae server发http请求了。
 }
 
 static void
@@ -59,19 +67,27 @@ event_cb(struct bufferevent *bev, short events, void *ctx)
         bufferevent_free(bev);
     }
 }
-
+//当收到一个新的http message的第一个字符的时候，会调用此方法
 int req_on_message_begin (http_parser* parser) {
     printf("enter %s\n",__func__);
     return 0;
 }
+
+//得到request的url的时候会调用此方法
+//即，如果客户端发送“GET /index HTTP/1.1”，那么这里的at就是"/index",length就是它的长度
 int req_on_url (http_parser* parser, const char *at, size_t length) {
     printf("enter %s\n",__func__);
     return 0;
 }
+
+//每个http header都是以冒号隔开，收到冒号前的东西的时候会调用此方法，注意，这次收到的未必是一个完整的字符串
+//比如，"Date: Tue, 26 Feb 2013 02:44:36 GMT" ，此时收到的可能只是一个“D”，下次收到“ate”
 int req_on_header_field (http_parser* parser, const char *at, size_t length) {
     printf("enter %s\n",__func__);
     return 0;
 }
+
+//每个http header都是以冒号隔开，收到冒号后的东西的时候会调用此方法，注意，这次收到的未必是一个完整的字符串
 int req_on_header_value (http_parser* parser, const char *at, size_t length) {
     printf("enter %s\n",__func__);
     return 0;
@@ -80,6 +96,8 @@ int req_on_headers_complete (http_parser* parser)      {
     printf("enter %s\n",__func__);
     return 0;
 }
+
+//收到http message中body(header以后的内容)时会调用此方法。注意，此时可能收到的只是body的一部分
 int req_on_body (http_parser* parser, const char *at, size_t length) {
     printf("enter %s\n",__func__);
     return 0;
@@ -112,18 +130,24 @@ client_handler* create_client_header(){
     return ret;
 }
 
+/**
+ * 每当收到一个新的http连接的时候会调用此方法
+ */
 static void my_acceptcb(struct evconnlistener *listener,
                  evutil_socket_t sock, struct sockaddr *addr, int addrlen, void *ptr){
     struct event_base *base;
     char host[NI_MAXHOST];
     int rv;
     
+    //获取对方的IP，记录日志用
     rv = getnameinfo(addr, addrlen, host, sizeof(host), 0, 0, NI_NUMERICHOST);
     if(rv){
         fprintf(stderr,"getnameinfo() failed: %s\n",gai_strerror(rv));
         return ;
     }
     fprintf(stderr,"got connection from %s\n",host);
+    
+    //每个http连接要对应一个socket和一个我们自己的client_header类
     base = evconnlistener_get_base(listener);
     struct bufferevent *bev = bufferevent_socket_new(base, sock, BEV_OPT_CLOSE_ON_FREE);
     client_handler* clienthandler=create_client_header();
@@ -132,6 +156,7 @@ static void my_acceptcb(struct evconnlistener *listener,
     bufferevent_enable(bev, EV_READ|EV_WRITE);
 }
 
+//调用accept出错的时候会调用此方法
 static void
 accept_error_cb(struct evconnlistener *listener, void *ctx)
 {
@@ -145,6 +170,9 @@ accept_error_cb(struct evconnlistener *listener, void *ctx)
 
 /**
  * 创建evconnlistener
+ * \param base
+ * \param family 必须是INET或者INET6
+ * \param config 配置信息。
  */
 static struct evconnlistener* create_evlistener(struct event_base *base,int family,configuration* config)
 {
